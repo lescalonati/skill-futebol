@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: skill-futebol
+    env: static
+    buildCommand: ""
+    staticPublishPath: ./
+

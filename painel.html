@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Tático - Skill futebol-analise-tatica</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    :root {
+      --background: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --foreground: #f8fafc;
+      --muted-foreground: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-[#0f172a] text-slate-100 min-h-screen p-4 md:p-8 flex items-center justify-center">
+
+  <div class="bg-[#1e293b] border border-slate-700 rounded-2xl p-6 shadow-2xl max-w-4xl w-full space-y-6">
+    
+    <!-- Cabeçalho -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-700 pb-4 gap-3">
+      <div>
+        <h1 class="text-xl md:text-2xl font-bold text-emerald-400 flex items-center gap-2">
+          ⚽ Painel Integrado: Futebol Análise Tática
+        </h1>
+        <p class="text-xs text-slate-400">Skill <code>futebol-analise-tatica</code> | Eficiência Ofensiva & xG</p>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="carregarExemplo('fla_pal')" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 font-medium transition">Exemplo 1 (Flamengo x Palmeiras)</button>
+        <button onclick="carregarExemplo('rm_bar')" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 font-medium transition">Exemplo 2 (Real x Barça)</button>
+      </div>
+    </div>
+
+    <!-- Grid dos Times -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <!-- Mandante -->
+      <div class="border border-blue-500/40 bg-blue-950/20 rounded-xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Time Mandante</span>
+          <span class="text-xs font-bold text-blue-300" id="badge_mandante">Mandante</span>
+        </div>
+        <input type="text" id="tA_nome" value="Flamengo" class="w-full text-sm font-semibold bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white" placeholder="Nome do clube" oninput="calcular()">
+        
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="text-slate-400 block mb-1">Gols Marcados</label>
+            <input type="number" id="tA_gols" value="2" min="0" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 font-bold text-white" oninput="calcular()">
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">Posse de Bola (%)</label>
+            <input type="number" id="tA_posse" value="58" min="0" max="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 font-bold text-white" oninput="ajustarPosse('A')">
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">Finalizações Totais</label>
+            <input type="number" id="tA_totais" value="14" min="0" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white" oninput="calcular()">
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">No Alvo</label>
+            <input type="number" id="tA_alvo" value="6" min="0" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white" oninput="calcular()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Visitante -->
+      <div class="border border-amber-500/40 bg-amber-950/20 rounded-xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Time Visitante</span>
+          <span class="text-xs font-bold text-amber-300" id="badge_visitante">Visitante</span>
+        </div>
+        <input type="text" id="tB_nome" value="Palmeiras" class="w-full text-sm font-semibold bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white" placeholder="Nome do clube" oninput="calcular()">
+        
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="text-slate-400 block mb-1">Gols Marcados</label>
+            <input type="number" id="tB_gols" value="1" min="0" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 font-bold text-white" oninput="calcular()">
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">Posse de Bola (%)</label>
+            <input type="number" id="tB_posse" value="42" min="0" max="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 font-bold text-white" oninput="ajustarPosse('B')">
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">Finalizações Totais</label>
+            <input type="number" id="tB_totais" value="8" min="0" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white" oninput="calcular()">
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">No Alvo</label>
+            <input type="number" id="tB_alvo" value="3" min="0" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white" oninput="calcular()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparador Visual -->
+    <div class="space-y-4 pt-2">
+      <!-- Barra Posse -->
+      <div>
+        <div class="flex justify-between text-xs font-bold mb-1.5">
+          <span class="text-blue-400" id="txt_posse_a">58%</span>
+          <span class="text-slate-400 font-medium">Posse de Bola</span>
+          <span class="text-amber-400" id="txt_posse_b">42%</span>
+        </div>
+        <div class="w-full h-3 bg-amber-500 rounded-full overflow-hidden flex">
+          <div id="bar_posse" class="bg-blue-500 h-full transition-all duration-300" style="width: 58%"></div>
+        </div>
+      </div>
+
+      <!-- Tabela Resumo -->
+      <div class="overflow-hidden border border-slate-700 rounded-xl text-xs md:text-sm">
+        <table class="w-full text-center">
+          <thead class="bg-slate-900/80 text-slate-400">
+            <tr>
+              <th class="py-2.5 px-4 text-left font-semibold">Métrica</th>
+              <th class="py-2.5 px-4 text-blue-400 font-bold" id="th_tab_a">Flamengo</th>
+              <th class="py-2.5 px-4 text-amber-400 font-bold" id="th_tab_b">Palmeiras</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-700/60 bg-slate-900/30">
+            <tr>
+              <td class="py-2 px-4 text-left font-medium text-slate-300">Finalizações (No Alvo)</td>
+              <td class="py-2 px-4" id="td_chutes_a">14 (6)</td>
+              <td class="py-2 px-4" id="td_chutes_b">8 (3)</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 text-left font-medium text-slate-300">Pontaria</td>
+              <td class="py-2 px-4 font-semibold text-blue-300" id="td_pontaria_a">42.9%</td>
+              <td class="py-2 px-4 font-semibold text-amber-300" id="td_pontaria_b">37.5%</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-4 text-left font-medium text-slate-300">Eficiência de Conversão</td>
+              <td class="py-2 px-4 font-semibold text-blue-300" id="td_conversao_a">33.3%</td>
+              <td class="py-2 px-4 font-semibold text-amber-300" id="td_conversao_b">33.3%</td>
+            </tr>
+            <tr class="bg-emerald-500/10">
+              <td class="py-2.5 px-4 text-left font-bold text-emerald-400">xG Estimado (Gols Esperados)</td>
+              <td class="py-2.5 px-4 font-bold text-emerald-300 text-base" id="td_xg_a">2.20</td>
+              <td class="py-2.5 px-4 font-bold text-emerald-300 text-base" id="td_xg_b">1.15</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Diagnóstico Tático -->
+    <div class="bg-slate-900/90 border border-slate-700 rounded-xl p-4 space-y-2 text-xs md:text-sm">
+      <div class="font-bold text-emerald-400 flex items-center gap-1.5">
+        🔍 Diagnóstico Tático e Veredito da Partida
+      </div>
+      <p id="diag_texto" class="text-slate-200 leading-relaxed"></p>
+    </div>
+
+    <!-- Ação -->
+    <div class="flex justify-between items-center pt-2">
+      <span class="text-xs text-slate-500">Desenvolvido com a skill futebol-analise-tatica</span>
+      <button onclick="copiarTemplate()" class="px-4 py-2 text-xs font-bold rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition flex items-center gap-2">
+        📋 Copiar Relatório Completo (Markdown)
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    function ajustarPosse(quem) {
+      if (quem === 'A') {
+        const valA = Math.min(100, Math.max(0, parseFloat(document.getElementById('tA_posse').value) || 0));
+        document.getElementById('tB_posse').value = (100 - valA).toFixed(0);
+      } else {
+        const valB = Math.min(100, Math.max(0, parseFloat(document.getElementById('tB_posse').value) || 0));
+        document.getElementById('tA_posse').value = (100 - valB).toFixed(0);
+      }
+      calcular();
+    }
+
+    function carregarExemplo(tipo) {
+      if (tipo === 'fla_pal') {
+        document.getElementById('tA_nome').value = 'Flamengo';
+        document.getElementById('tA_gols').value = 2;
+        document.getElementById('tA_posse').value = 58;
+        document.getElementById('tA_totais').value = 14;
+        document.getElementById('tA_alvo').value = 6;
+
+        document.getElementById('tB_nome').value = 'Palmeiras';
+        document.getElementById('tB_gols').value = 1;
+        document.getElementById('tB_posse').value = 42;
+        document.getElementById('tB_totais').value = 8;
+        document.getElementById('tB_alvo').value = 3;
+      } else {
+        document.getElementById('tA_nome').value = 'Real Madrid';
+        document.getElementById('tA_gols').value = 3;
+        document.getElementById('tA_posse').value = 48;
+        document.getElementById('tA_totais').value = 16;
+        document.getElementById('tA_alvo').value = 8;
+
+        document.getElementById('tB_nome').value = 'Barcelona';
+        document.getElementById('tB_gols').value = 2;
+        document.getElementById('tB_posse').value = 52;
+        document.getElementById('tB_totais').value = 12;
+        document.getElementById('tB_alvo').value = 5;
+      }
+      calcular();
+    }
+
+    function calcMetricas(gols, totais, alvo, posse) {
+      const fora = Math.max(0, totais - alvo);
+      const pontaria = totais > 0 ? (alvo / totais * 100) : 0;
+      const conversao = alvo > 0 ? (gols / alvo * 100) : 0;
+      const xg = (alvo * 0.30) + (fora * 0.05);
+      return {
+        gols, totais, alvo,
+        posse: posse.toFixed(1),
+        pontaria: pontaria.toFixed(1),
+        conversao: conversao.toFixed(1),
+        xg: xg.toFixed(2)
+      };
+    }
+
+    function calcular() {
+      const nA = document.getElementById('tA_nome').value || 'Mandante';
+      const gA = parseInt(document.getElementById('tA_gols').value) || 0;
+      const pA = parseFloat(document.getElementById('tA_posse').value) || 50;
+      const totA = parseInt(document.getElementById('tA_totais').value) || 0;
+      const alvA = parseInt(document.getElementById('tA_alvo').value) || 0;
+
+      const nB = document.getElementById('tB_nome').value || 'Visitante';
+      const gB = parseInt(document.getElementById('tB_gols').value) || 0;
+      const pB = parseFloat(document.getElementById('tB_posse').value) || (100 - pA);
+      const totB = parseInt(document.getElementById('tB_totais').value) || 0;
+      const alvB = parseInt(document.getElementById('tB_alvo').value) || 0;
+
+      const mA = calcMetricas(gA, totA, alvA, pA);
+      const mB = calcMetricas(gB, totB, alvB, pB);
+
+      document.getElementById('badge_mandante').textContent = nA;
+      document.getElementById('badge_visitante').textContent = nB;
+      document.getElementById('th_tab_a').textContent = nA;
+      document.getElementById('th_tab_b').textContent = nB;
+
+      document.getElementById('txt_posse_a').textContent = `${mA.posse}%`;
+      document.getElementById('txt_posse_b').textContent = `${mB.posse}%`;
+      document.getElementById('bar_posse').style.width = `${Math.min(100, Math.max(0, pA))}%`;
+
+      document.getElementById('td_chutes_a').textContent = `${mA.totais} (${mA.alvo})`;
+      document.getElementById('td_chutes_b').textContent = `${mB.totais} (${mB.alvo})`;
+      document.getElementById('td_pontaria_a').textContent = `${mA.pontaria}%`;
+      document.getElementById('td_pontaria_b').textContent = `${mB.pontaria}%`;
+      document.getElementById('td_conversao_a').textContent = `${mA.conversao}%`;
+      document.getElementById('td_conversao_b').textContent = `${mB.conversao}%`;
+      document.getElementById('td_xg_a').textContent = mA.xg;
+      document.getElementById('td_xg_b').textContent = mB.xg;
+
+      const xgA = parseFloat(mA.xg);
+      const xgB = parseFloat(mB.xg);
+      let veredito = '';
+      if (gA > gB && xgA >= xgB) {
+        veredito = `Vitória justa do ${nA}. A equipe dominou as ações ofensivas com maior expectativa de gols (${mA.xg} xG contra ${mB.xg} xG) e confirmou no placar final (${gA}x${gB}).`;
+      } else if (gB > gA && xgB >= xgA) {
+        veredito = `Vitória justa do ${nB}. Foi mais contundente nas chances de gol (${mB.xg} xG contra ${mA.xg} xG) e garantiu o placar favorável.`;
+      } else if (gA > gB && xgB > xgA) {
+        veredito = `Vitória com eficácia isolada do ${nA}. O ${nB} gerou maior expectativa de gols (${mB.xg} xG vs ${mA.xg} xG), mas pecou na pontaria ou parou no goleiro adversário.`;
+      } else if (gB > gA && xgA > xgB) {
+        veredito = `Vitória cirúrgica do ${nB}. Apesar do maior volume de xG do ${nA} (${mA.xg} vs ${mB.xg}), o visitante converteu seus arremates com precisão letal.`;
+      } else {
+        veredito = `Empate em conformidade com o equilíbrio tático e estatístico registrado entre as duas equipes.`;
+      }
+
+      document.getElementById('diag_texto').textContent = veredito;
+    }
+
+    function copiarTemplate() {
+      const nA = document.getElementById('tA_nome').value;
+      const gA = document.getElementById('tA_gols').value;
+      const nB = document.getElementById('tB_nome').value;
+      const gB = document.getElementById('tB_gols').value;
+      const xgA = document.getElementById('td_xg_a').textContent;
+      const xgB = document.getElementById('td_xg_b').textContent;
+      const diag = document.getElementById('diag_texto').textContent;
+
+      const txt = `# ⚽ Relatório Tático: ${nA} ${gA} x ${gB} ${nB}\n\n` +
+        `### 📊 Painel Comparativo de Eficiência\n\n` +
+        `| Métrica | ${nA} | ${nB} |\n` +
+        `| :--- | :---: | :---: |\n` +
+        `| **Posse de Bola** | ${document.getElementById('txt_posse_a').textContent} | ${document.getElementById('txt_posse_b').textContent} |\n` +
+        `| **Finalizações (No Alvo)** | ${document.getElementById('td_chutes_a').textContent} | ${document.getElementById('td_chutes_b').textContent} |\n` +
+        `| **Pontaria** | ${document.getElementById('td_pontaria_a').textContent} | ${document.getElementById('td_pontaria_b').textContent} |\n` +
+        `| **Eficiência de Conversão** | ${document.getElementById('td_conversao_a').textContent} | ${document.getElementById('td_conversao_b').textContent} |\n` +
+        `| **xG Estimado** | ${xgA} | ${xgB} |\n\n` +
+        `### ⚖️ Conclusão da Partida\n${diag}\n`;
+
+      navigator.clipboard.writeText(txt).then(() => {
+        alert('Relatório copiado com sucesso no formato da skill!');
+      });
+    }
+
+    window.onload = calcular;
+  </script>
+</body>
+</html>
+
